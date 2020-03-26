@@ -1,0 +1,5 @@
+pyyaml
+slackclient
+tqdm
+emoji_data_python
+pillow
