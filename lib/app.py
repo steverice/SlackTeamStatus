@@ -1,6 +1,7 @@
 import os
 import subprocess
 from io import BytesIO
+from multiprocessing.dummy import Pool
 from os.path import expanduser
 from pathlib import Path
 from typing import Dict
@@ -171,14 +172,21 @@ class SlackTeamStatus(object):
     def get_custom_emoji(self):
         data = self.slack.web_client.emoji_list()
 
+        work_pool = Pool(WORK_POOL_SIZE)
+
         emoji_to_download = list(
-            filter(None, map(self.check_if_exists_map, data["emoji"].items()),)
+            filter(
+                None,
+                work_pool.imap_unordered(
+                    self.check_if_exists_map, data["emoji"].items()
+                ),
+            )
         )
         num_emoji = len(emoji_to_download)
 
         list(
             tqdm(
-                map(self.update_emoji_map, emoji_to_download),
+                work_pool.imap_unordered(self.update_emoji_map, emoji_to_download),
                 desc="Downloading Custom Emoji",
                 unit="emoji",
                 total=num_emoji,
