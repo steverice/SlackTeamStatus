@@ -121,6 +121,12 @@ class SlackTeamStatus(object):
     def update_emoji_map(self, args):
         return self.update_emoji(args[0], args[1] if 1 < len(args) else None)
 
+    def full_emoji_name(self, emoji_name: str, variation: str = None):
+        if variation is not None:
+            return "-".join((emoji_name, variation))
+        else:
+            return emoji_name
+
     def update_standard_emoji(self, emoji_name: str, skin_variation: str = None):
         emoji_data = emoji_data_python.find_by_shortname(emoji_name)
         if not emoji_data:
@@ -134,9 +140,8 @@ class SlackTeamStatus(object):
 
         if skin_variation and SKIN_TONES[skin_variation] in emoji_data.skin_variations:
             emoji_data = emoji_data.skin_variations[SKIN_TONES[skin_variation]]
-            emoji_name = "-".join(
-                (emoji_name, skin_variation or "")
-            )  # TODO duplication between here and caller
+
+        emoji_name = self.full_emoji_name(emoji_name, skin_variation)
 
         if not emoji_data.has_img_apple:
             self.logger.warning("No Apple emoji found for %s", emoji_name)
@@ -261,8 +266,7 @@ class SlackTeamStatus(object):
             new_status = self.resolve_aliases(status_emoji)
             if new_status not in self.custom_emoji:
                 self.update_standard_emoji(new_status, variation)
-            if variation:
-                new_status = "-".join((new_status, variation))
+            new_status = self.full_emoji_name(new_status, variation)
         elif presence == "active" and self.use_avatars:
             new_status = user_id
         else:
