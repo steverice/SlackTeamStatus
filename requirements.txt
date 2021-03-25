@@ -1,4 +1,4 @@
-pyyaml==5.3.1
+pyyaml==5.4
 slackclient==2.5.0
 tqdm==4.43.0
 emoji_data_python==1.4.2
