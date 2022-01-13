@@ -2,4 +2,4 @@ pyyaml==5.3.1
 slackclient==2.5.0
 tqdm==4.43.0
 emoji_data_python==1.4.2
-pillow==7.0.0
+pillow==9.0.0
